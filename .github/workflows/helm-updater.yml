@@ -35,7 +35,6 @@ jobs:
           # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          git add charts/chart.yaml
           git add .
           # Commit changes and build files using same commit info as before
           git commit -C HEAD@{1}
