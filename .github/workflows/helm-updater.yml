@@ -45,3 +45,5 @@ jobs:
           # push to branch
           git push
           exit 0
+      - name: exit gracefully
+        run: exit 0
