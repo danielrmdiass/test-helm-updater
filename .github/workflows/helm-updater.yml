@@ -24,6 +24,11 @@ jobs:
         with:
           path: main
           ref: main
+      - name: Get version
+        id: main
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "version=$(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')\n" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
@@ -36,14 +41,13 @@ jobs:
           sudo apt-get install -y bumpversion
           
           # update chart file version with bumpversion
-          bumpversion patch --current-version $(grep "version:" main/k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
-          bumpversion patch --current-version $(grep "version:" main/.cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose       
+          bumpversion patch --current-version ${{steps.main.outputs.version}} k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
+          bumpversion patch --current-version ${{steps.main.outputs.version}} .cicd/deployment.yaml --allow-dirty --verbose      
           
           # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add .
-          git rm -f --cached main
           # Commit changes and build files using new message
           git commit -m "chore(auto): Update helm chart version"
           # push to branch
