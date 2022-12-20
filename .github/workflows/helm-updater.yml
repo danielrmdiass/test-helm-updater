@@ -1,7 +1,7 @@
 name: Helm Chart Version Updater
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -27,8 +27,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y bumpversion
           
-          # Roll back git history to before last commit
-          git reset --soft HEAD~1
           # update chart file version with bumpversion
           bumpversion patch --current-version $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}') k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
           bumpversion patch --current-version $(grep "version:" .cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose
@@ -37,6 +35,6 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git add .
           # Commit changes and build files using same commit info as before
-          git commit -C HEAD@{1}
+          git commit -m "chore(auto): Update helm chart version"
           # Force push to overwrite git history
-          git push --force
+          git push
