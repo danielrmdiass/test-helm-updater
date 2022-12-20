@@ -39,10 +39,13 @@ jobs:
           # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          git rm --cached main
           git add .
+          git rm --cached main
           # Commit changes and build files using new message
           git commit -m "chore(auto): Update helm chart version"
           # push to branch
           git push
           exit 1
+        continue-on-error: true
+      - name: end gracefully
+        run: exit 1
