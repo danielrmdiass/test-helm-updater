@@ -19,12 +19,6 @@ jobs:
           since_last_remote_commit: 'true'
           files: |
             k8s/charts/events-hub-api/**
-      - name: Checkout main branch
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/checkout@v3
-        with:
-          path: main
-          ref: main
       - name: Check for chart file change
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
