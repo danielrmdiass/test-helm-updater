@@ -9,9 +9,6 @@ jobs:
   helm-chart-version-updater:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v34.6.1
@@ -19,7 +16,15 @@ jobs:
           since_last_remote_commit: 'true'
           files: |
             k8s/charts/events-hub-api/**
+      - name: Get changed files
+        id: main
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          git checkout origin/main -- k8s/charts/events-hub-api/Chart.yaml
+          echo "version=$(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')\n" >> $GITHUB_OUTPUT
       - name: Check for chart file change
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "Chart file was changed in this pull request"
@@ -27,17 +32,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y bumpversion
           
-       
-          git checkout main -- k8s/charts/events-hub-api/Chart.yaml
-          current_version = $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')
-          git restore
-          bumpversion patch --current-version $current_version k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
-          bumpversion patch --current-version $current_version .cicd/deployment.yaml --allow-dirty --verbose
-
+          # update chart file version with bumpversion
+          bumpversion patch --current-version ${{steps.main.outputs.version}} k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
+          bumpversion patch --current-version ${{steps.main.outputs.version}} .cicd/deployment.yaml --allow-dirty --verbose
+          # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add .
-          # Commit changes and build files using same commit info as before
+          # Commit changes and build files using new message
           git commit -m "chore(auto): Update helm chart version"
-          # Force push to overwrite git history
+          # push to branch
           git push
