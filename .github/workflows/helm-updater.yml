@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v34.6.1
