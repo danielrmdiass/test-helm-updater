@@ -9,6 +9,9 @@ jobs:
   helm-chart-version-updater:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v34.6.1
@@ -22,10 +25,6 @@ jobs:
         with:
           path: main
           ref: main
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
-          clean: true
       - name: Check for chart file change
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
@@ -38,7 +37,7 @@ jobs:
           bumpversion patch --current-version $(grep "version:" main/k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
           bumpversion patch --current-version $(grep "version:" main/.cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose
           
-
+          
           # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
