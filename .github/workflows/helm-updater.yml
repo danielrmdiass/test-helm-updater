@@ -9,7 +9,6 @@ jobs:
   helm-chart-version-updater:
     runs-on: ubuntu-latest
     steps:
-
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v34.6.1
