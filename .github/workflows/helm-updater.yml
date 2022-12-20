@@ -19,6 +19,10 @@ jobs:
           since_last_remote_commit: 'true'
           files: |
             k8s/charts/events-hub-api/**
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF})"
+        id: extract_branch
       - name: Checkout main branch
         uses: actions/checkout@v3
         with:
@@ -31,7 +35,7 @@ jobs:
           echo "version=$(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')\n" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ steps.extract_branch.outputs.branch }}
       - name: Check for chart file change
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
