@@ -43,3 +43,4 @@ jobs:
           git commit -m "chore(auto): Update helm chart version"
           # push to branch
           git push
+          exit 1
