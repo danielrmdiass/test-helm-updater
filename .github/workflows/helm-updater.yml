@@ -24,6 +24,9 @@ jobs:
         with:
           path: main
           ref: main
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       - name: Check for chart file change
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
