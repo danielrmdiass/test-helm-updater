@@ -40,7 +40,7 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add .
-          git rm --cached main
+          git rm -f --cached main
           # Commit changes and build files using new message
           git commit -m "chore(auto): Update helm chart version"
           # push to branch
