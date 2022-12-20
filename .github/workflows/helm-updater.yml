@@ -22,7 +22,7 @@ jobs:
       - name: Extract branch name
         shell: bash
         run: |
-          echo "branch=${{GITHUB_REF}}" >> $GITHUB_OUTPUT
+          echo "##[set-output name=branch;]$(echo ${github.ref})"
         id: extract_branch
       - name: Checkout main branch
         uses: actions/checkout@v3
