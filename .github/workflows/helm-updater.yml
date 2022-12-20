@@ -23,7 +23,7 @@ jobs:
         id: main
         uses: actions/checkout@v3
         with:
-          ref: origin/main
+          path: main
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "version=$(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')\n" >> $GITHUB_OUTPUT
