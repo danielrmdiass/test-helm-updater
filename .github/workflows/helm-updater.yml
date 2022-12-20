@@ -25,6 +25,7 @@ jobs:
           path: main
           ref: main
       - name: Check for chart file change
+        continue-on-error: true
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           echo "Chart file was changed in this pull request"
