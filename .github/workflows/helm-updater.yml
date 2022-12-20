@@ -60,4 +60,4 @@ jobs:
           git push
         continue-on-error: true
       - name: End gracefully
-        run: exit 1
+        run: exit 0
