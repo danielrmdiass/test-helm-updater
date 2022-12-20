@@ -28,7 +28,7 @@ jobs:
           sudo apt-get install -y bumpversion
           
        
-          git checkout origin/main -- k8s/charts/events-hub-api/Chart.yaml
+          git checkout main -- k8s/charts/events-hub-api/Chart.yaml
           current_version = $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')
           git restore
           bumpversion patch --current-version $current_version k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
