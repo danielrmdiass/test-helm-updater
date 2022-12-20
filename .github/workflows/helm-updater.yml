@@ -27,10 +27,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y bumpversion
           
-          # update chart file version with bumpversion
-          bumpversion patch --current-version $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}') k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
-          bumpversion patch --current-version $(grep "version:" .cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose
-          # commit chart files with new version
+       
+          git checkout origin/main -- k8s/charts/events-hub-api/Chart.yaml
+          current_version = $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')
+          git restore
+          bumpversion patch --current-version $current_version k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
+          bumpversion patch --current-version $current_version .cicd/deployment.yaml --allow-dirty --verbose
+
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
           git add .
