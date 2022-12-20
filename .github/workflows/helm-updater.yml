@@ -1,0 +1,43 @@
+name: Helm Chart Version Updater
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  helm-chart-version-updater:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v34.6.1
+        with:
+          since_last_remote_commit: 'true'
+          files: |
+            k8s/charts/events-hub-api/**
+      - name: Check for chart file change
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "Chart file was changed in this pull request"
+          # install bumpversion
+          sudo apt-get update
+          sudo apt-get install -y bumpversion
+          
+          # Roll back git history to before last commit
+          git reset --soft HEAD~1
+          # update chart file version with bumpversion
+          bumpversion patch --current-version $(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}') k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
+          bumpversion patch --current-version $(grep "version:" .cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose
+          # commit chart files with new version
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git add charts/chart.yaml
+          git add .
+          # Commit changes and build files using same commit info as before
+          git commit -C HEAD@{1}
+          # Force push to overwrite git history
+          git push --force
