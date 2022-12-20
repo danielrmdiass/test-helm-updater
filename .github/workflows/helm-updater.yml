@@ -45,7 +45,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y bumpversion
           
-          echo ${{ steps.extract_branch.outputs.branch }}
+          echo "${{ steps.extract_branch.outputs.branch }}"
           # update chart file version with bumpversion
           bumpversion patch --current-version ${{steps.main.outputs.version}} k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
           bumpversion patch --current-version ${{steps.main.outputs.version}} .cicd/deployment.yaml --allow-dirty --verbose      
