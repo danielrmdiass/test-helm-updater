@@ -9,9 +9,6 @@ jobs:
   helm-chart-version-updater:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v34.6.1
@@ -19,14 +16,16 @@ jobs:
           since_last_remote_commit: 'true'
           files: |
             k8s/charts/events-hub-api/**
-      - name: Get changed files
-        id: main
+      - name: Checkout main branch
+        if: steps.changed-files.outputs.any_changed == 'true'
         uses: actions/checkout@v3
         with:
           path: main
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          echo "version=$(grep "version:" k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')\n" >> $GITHUB_OUTPUT
+          ref: main
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+          clean: true
       - name: Check for chart file change
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
@@ -36,8 +35,10 @@ jobs:
           sudo apt-get install -y bumpversion
           
           # update chart file version with bumpversion
-          bumpversion patch --current-version ${{steps.main.outputs.version}} k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
-          bumpversion patch --current-version ${{steps.main.outputs.version}} .cicd/deployment.yaml --allow-dirty --verbose
+          bumpversion patch --current-version $(grep "version:" main/k8s/charts/events-hub-api/Chart.yaml | awk '{print $2}')k8s/charts/events-hub-api/Chart.yaml --allow-dirty --verbose
+          bumpversion patch --current-version $(grep "version:" main/.cicd/deployment.yaml | awk '{print $2}') .cicd/deployment.yaml --allow-dirty --verbose
+          
+
           # commit chart files with new version
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
